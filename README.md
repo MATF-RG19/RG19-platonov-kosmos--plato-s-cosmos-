@@ -5,7 +5,7 @@
 ![opengl](https://img.shields.io/badge/lib-opengl-green.svg)
 ![glut](https://img.shields.io/badge/lib-glut-green.svg)
 
-
+![alt text](platonic.gif?raw=true "Platonova tela")
 
 ## :pencil2: Opis igre
 > Igrac se nalazi u zamišljenom prostoru dok mu se približavaju tela. 

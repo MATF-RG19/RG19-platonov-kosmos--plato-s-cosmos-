@@ -23,7 +23,7 @@ Trajanje igre je oko 2 minuta.
 | *t* ili *T*| Uklanja tetraedar |
 | *h* ili *H*| Uklanja heksaedar |
 | *o* ili *O*| Uklanja oktaedar  |
-| 'd* ili *D*| Uklanja dodekaedar|
+| *d* ili *D*| Uklanja dodekaedar|
 | *i* ili *I*| Uklanja ikosaedar |
 | *r* ili *R*| Restartuje igru   |
 | *Esc* | Prekida igru - zatvara prozor

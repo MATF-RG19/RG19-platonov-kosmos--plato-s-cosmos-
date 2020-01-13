@@ -1,0 +1,2 @@
+/home/kotur/Desktop/Milos/RG25-platonov-kosmos/src/glm/glm/CMakeFiles/rebuild_cache.dir
+/home/kotur/Desktop/Milos/RG25-platonov-kosmos/src/glm/glm/CMakeFiles/edit_cache.dir

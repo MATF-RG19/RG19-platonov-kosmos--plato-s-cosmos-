@@ -1,5 +1,5 @@
 # Platonov kosmos
-### RG25-platonov-kosmos
+### RG19-platonov-kosmos
 
 ![c++](https://img.shields.io/badge/language-c%2B%2B-orange)
 ![opengl](https://img.shields.io/badge/lib-opengl-green.svg)

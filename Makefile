@@ -1,6 +1,6 @@
 PROGRAM = main
 CXX      = g++
-CXXFLAGS  = -g -Wall -Wextra -std=c++17
+CXXFLAGS  = -g -Wall -Wextra -std=c++17 -Wno-unused
 LDLIBS  = -lglut -lGLU -lGL -lm
 
 $(PROGRAM): main.o classes.o glm/libglm_static.a

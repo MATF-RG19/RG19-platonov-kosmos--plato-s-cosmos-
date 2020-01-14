@@ -9,7 +9,7 @@ std::ostream& operator<<(std::ostream& out, glm::mat4 const& matrix) {
 
 int main()
 {
-    rg::Hexahedron body(glm::vec2(0,0));
+    rg::Hexahedron body(glm::vec3(0,0,0), glm::vec2(0,0));
     std::cout << body.transformation_matrix() << std::endl;
 
     // use glm functions on transformation_matrix matrix

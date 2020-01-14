@@ -14,27 +14,28 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/string_cast.hpp"
 
 #include "classes.hpp"
 
-struct Global {
-    const float body_translate_parameter = 0.05;
-    bool game_running = true;
-    const int timer_id = 0; // priblizno 72 puta u sekundi
-    const int timer_interval = 14; // priblizno 72 puta u sekundi
+rg::_Data global {
+    .body_translate_parameter = 0.05,
+    .game_running = true,
+    .timer_id = 0,
+    .timer_interval = 10,
+    .body_spawn_point = glm::vec3(0,0,-10),
+    .body_generation_cooldown = 0,
+    .body_manager = rg::BodyManager(),
+    .projection_matrix = glm::mat4(1.0f),
+    .view_matrix = glm::mat4(1.0f),
+    .viewport = glm::vec4(0,0,0,0),
+    .mouse = rg::Mouse(),
+    .keyboard = rg::Keyboard()
+};
 
-    int body_generation_cooldown = 5000; // 5s
-    std::shared_ptr<rg::BodyManager> body_manager { nullptr };
-    std::shared_ptr<glm::mat4> projection_matrix { nullptr };
-    std::shared_ptr<glm::mat4> view_matrix { nullptr };
-    std::shared_ptr<glm::vec4> viewport { nullptr };
+// Zbog bolje citljivosti, ovde cu definisati sve 
+// konstante koje su u upotrebi
 
-    std::shared_ptr<rg::Mouse> mouse { nullptr };
-    std::shared_ptr<rg::Keyboard> keyboard { nullptr };
-} global;
-
-//Zbog bolje citljivosti, ovde cu definisati sve 
-//konstante koje su u upotrebi
 #define esc 27
 #define sirina_prozora 1000
 #define duzina_prozora 500
@@ -47,9 +48,6 @@ static void on_keyboard_release(unsigned char key, int x1, int y1);
 void on_display(void);
 void on_reshape(int width, int height);
 static void on_timer(int value);
-
-void nacrtajTetredar(void);
-void nacrtajHeksaedar(void);
 
 int main(int argc, char** argv) {
 	//Inicijalizacija gluta
@@ -75,40 +73,33 @@ int main(int argc, char** argv) {
     glClearColor(0.1, 0.1, 0.1, 1);
 
 
-    // Inicijalizacija globalnih stanja programa
-    global.mouse = std::make_shared<rg::Mouse>();
-    global.keyboard = std::make_shared<rg::Keyboard>();
-
-    // Postavljanje pozicije kamere (gledamo u smeru -z)
-    global.view_matrix = std::make_shared<glm::mat4>(glm::lookAt(glm::vec3(0,0,0), glm::vec3(0,0,-1), glm::vec3(0,1,0)));
-    global.viewport = std::make_shared<glm::vec4>(0,0,sirina_prozora, duzina_prozora);
-    global.projection_matrix = std::make_shared<glm::mat4>(1.0f);
-    
-    // BodyManager(glm::vec3 generation_point, std::shared_ptr<glm::vec4> viewport_ptr, std::shared_ptr<glm::mat4> projection_matrix_ptr);
-    global.body_manager = std::make_shared<rg::BodyManager>(global.body_translate_parameter, glm::vec3(0,0,-100), global.viewport, global.projection_matrix);
     glutTimerFunc(global.timer_interval, on_timer, global.timer_id);
-
-    global.body_manager->add_request(std::make_shared<rg::BodyManager::GenerateBodyRequest>(std::make_shared<rg::Hexahedron>(glm::vec2(0,0))));
+    global.body_manager.send_request(std::make_unique<rg::BodyManager::GenerateBodyRequest>
+            (std::make_unique<rg::Hexahedron>(global.body_spawn_point, glm::vec2(0,0))));
 
 	//Glavna petlja
 	glutMainLoop();
+
 	return 0;
 }
 
 void on_mouse_click(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON) {
-        global.mouse->press_left_click();
+        global.mouse.press_left_click();
 
-        if (global.keyboard->is_pressed('h') || global.keyboard->is_pressed('H')) {
-            global.body_manager->add_request(std::make_shared<rg::BodyManager::RemoveBodyRequest>(rg::BodyType::HEXAHEDRON, global.mouse->position()));
+        if (global.keyboard.is_pressed('h') || global.keyboard.is_pressed('H')) {
+            global.body_manager.send_request(std::make_unique<rg::BodyManager::RemoveBodyRequest>
+                    (rg::BodyType::HEXAHEDRON, global.mouse.position(), global.viewport, global.projection_matrix));
         } else {
-            global.body_manager->add_request(std::make_shared<rg::BodyManager::RemoveBodyRequest>(rg::BodyType::NON_PLATONIC, global.mouse->position()));
+            global.body_manager.send_request(std::make_unique<rg::BodyManager::RemoveBodyRequest>
+                    (rg::BodyType::NON_PLATONIC, global.mouse.position(), global.viewport, global.projection_matrix));        
         }
+        // TODO uraditi za ostale objekte
     }
 }
 
 void on_mouse_move(int x, int y) {
-    global.mouse->set_position({x,y});
+    global.mouse.set_position({x,y});
 }
 
 void on_keyboard(unsigned char key, int x1, int y1) {
@@ -119,41 +110,12 @@ void on_keyboard(unsigned char key, int x1, int y1) {
             exit(EXIT_SUCCESS);
             break;
 
-        default: global.keyboard->press_key(key);
-
-        //case 't':
-        //case 'T':
-        //	//TODO
-        //break;
-        //
-        //
-        //case 'h':
-        //case 'H':
-        //	//TODO
-        //break;
-        //
-        //case 'o':
-        //case 'O':
-        ////Uz klik misa uklanja oktaedar
-        //	//TODO
-        //break;	
-
-        //case 'd':
-        //case 'D':
-        ////Uz klik misa uklanja dodekaedar
-        //	//TODO
-        //break;    
-
-        //case 'i':
-        //case 'I':
-        ////Uz klik misa uklanja ikosaedar
-        //	//TODO
-        //break;
+        default: global.keyboard.press_key(key);
   }
 }
 
 static void on_keyboard_release(unsigned char key, int x1, int y1) { 
-    global.keyboard->release_key(key);
+    global.keyboard.release_key(key);
 }
 
 void on_display(void)
@@ -163,16 +125,14 @@ void on_display(void)
 	glMatrixMode(GL_MODELVIEW);
 
     // Ucitamo pogled (kameru)
-    glLoadMatrixf(glm::value_ptr(*global.view_matrix)); 	
+    glLoadMatrixf(glm::value_ptr(global.view_matrix)); 	
 
     // Iscrtamo tela koje je generisao body generator
-    for (const auto &body : global.body_manager->bodies()) {
+    for (const auto &body : global.body_manager.bodies()) {
         glColor3f(1,0,0);
         glMultMatrixf(body->raw_transformation_matrix());
 
         body->draw();
-        //std::cout << body->project_to_plane(glm::vec3(0,0,0), *global.viewport, *global.projection_matrix).x << std::endl;
-        //std::cout << body->world_coordinates(glm::vec3(0,0,0)).z << std::endl;
     }
 
 	glutSwapBuffers();
@@ -181,12 +141,12 @@ void on_display(void)
 
 void on_reshape(int width, int height)
 {
-    *global.viewport = glm::vec4(0.0f, 0.0f, width, height);
+    global.viewport = glm::vec4(0.0f, 0.0f, width, height);
 	glViewport(0.0f,0.0f,width,height);
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-    *global.projection_matrix = glm::perspective(45.0f, static_cast<float>(width)/height, 0.01f, 100.0f);
-    glMultMatrixf(glm::value_ptr(*global.projection_matrix));
+    global.projection_matrix = glm::perspective(45.0f, static_cast<float>(width)/height, 0.01f, 100.0f);
+    glMultMatrixf(glm::value_ptr(global.projection_matrix));
 }
 
 static void on_timer(int value)
@@ -194,7 +154,12 @@ static void on_timer(int value)
 	if (value != global.timer_id || !global.game_running)
 		return;
 
-    if (auto opt_error = global.body_manager->update(); opt_error.has_value()) {
+    // FOR DEBUGING
+    //for (const auto &b : global.body_manager.bodies()) {
+    //    std::cout << glm::to_string(b->transformation_matrix()) << std::endl;
+    //}
+
+    if (auto opt_error = global.body_manager.update(global.body_translate_parameter); opt_error.has_value()) {
         std::cerr << opt_error.value() << std::endl;
         exit(EXIT_FAILURE);
     }

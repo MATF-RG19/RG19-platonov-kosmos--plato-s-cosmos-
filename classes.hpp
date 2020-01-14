@@ -19,6 +19,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/transform.hpp"
 
+
 namespace rg {
 
 enum class BodyType { NON_PLATONIC = 0, TETRAHEDRON = 1, HEXAHEDRON = 2, OCTAHEDRON = 3, DODECAHEDRON = 4, ICOSAHEDRON = 5 };
@@ -248,27 +249,33 @@ class Body : public Drawable,
 
 {
 public:
-   Body(BodyType body_type, glm::vec2 body_location_on_screen);
+   Body(BodyType body_type, glm::vec3 spawn_point, glm::vec2 target_location_on_screen);
    BodyType type() const;
+   glm::vec3 const& spawn_point() const;
 private:
    BodyType m_body_type;
-   glm::vec2 m_body_location_on_screen;
+   glm::vec3 m_spawn_point;
+   glm::vec2 m_target_location_on_screen;
    virtual void do_draw() const = 0;
 };
 
-Body::Body(BodyType body_type, glm::vec2 body_location_on_screen) : m_body_type(body_type), m_body_location_on_screen(body_location_on_screen) {}
+Body::Body(BodyType body_type, glm::vec3(spawn_point), glm::vec2 target_location_on_screen) : m_body_type(body_type), m_spawn_point(spawn_point), m_target_location_on_screen(target_location_on_screen) {}
 
 BodyType Body::type() const {
     return m_body_type;
 }
 
+glm::vec3 const& Body::spawn_point() const {
+    return m_spawn_point;
+}
+
 class Hexahedron : public Body {
 public:
-    Hexahedron(glm::vec2 body_location_on_screen);
+    Hexahedron(glm::vec3 spawn_point, glm::vec2 target_location_on_screen);
     void do_draw() const override;
 };
 
-Hexahedron::Hexahedron(glm::vec2 body_location_on_screen) : Body(BodyType::HEXAHEDRON, body_location_on_screen) {}
+Hexahedron::Hexahedron(glm::vec3 spawn_point, glm::vec2 target_location_on_screen) : Body(BodyType::HEXAHEDRON, spawn_point, target_location_on_screen) {}
 void Hexahedron::do_draw() const {
     glutSolidCube(1.0f);
 }
@@ -277,7 +284,7 @@ void Hexahedron::do_draw() const {
 class BodyManager {
 
 public:
-    BodyManager(float translate_parameter, glm::vec3 generation_point, std::shared_ptr<glm::vec4> viewport_ptr, std::shared_ptr<glm::mat4> projection_matrix_ptr);
+    BodyManager() = default;
     class Request {
     public:
          std::optional<error_t> process_request(BodyManager &bm) const;
@@ -287,56 +294,51 @@ public:
 
     class GenerateBodyRequest : public Request {
     public:
-        GenerateBodyRequest(std::shared_ptr<Body> body);
+        GenerateBodyRequest(std::unique_ptr<Body> body);
     private:
-        std::shared_ptr<Body> m_body;
+        mutable std::unique_ptr<Body> m_body;
         virtual std::optional<error_t> do_process_request(BodyManager &bm) const override;
     };
 
     class RemoveBodyRequest : public Request {
     public:
-        RemoveBodyRequest(BodyType type, glm::vec2 pointer_position);
+        RemoveBodyRequest(BodyType type, glm::vec2 pointer_position, glm::vec4 const& viewport_ref, glm::mat4 const& projection_matrix_ref);
+
     private:
         BodyType m_body_type;
         glm::vec2 m_pointer_position;
+        glm::vec4 const& m_viewport_ref;
+        glm::mat4 const& m_projection_matrix_ref;
 
        virtual std::optional<error_t> do_process_request(BodyManager &bm) const override;
     };
 
-std::optional<error_t> update();
-std::vector<std::shared_ptr<Body>> const& bodies() const;
-void add_request(std::shared_ptr<Request> request);
+std::optional<error_t> update(float translate_parameter);
+std::vector<std::unique_ptr<Body>> const& bodies() const;
+void send_request(std::unique_ptr<Request> request);
      
 private:
-    float m_translate_parameter = 0;
-    glm::vec3 m_generation_point = glm::vec3(0,0,0);
-    std::shared_ptr<glm::vec4> m_viewport_ptr = nullptr;
-    std::shared_ptr<glm::mat4> m_projection_matrix_ptr = nullptr;
- 
 	std::optional<error_t> process_requests();
 	std::optional<error_t> destroy_bodies_behind_screen();
-	void translate_bodies_closer();
+	void translate_bodies_closer(float translate_parameter);
 
-    std::vector <std::shared_ptr<Body>> m_bodies;
-    std::vector<std::shared_ptr<Request>> m_requests;
+    std::vector<std::unique_ptr<Body>> m_bodies;
+    std::vector<std::unique_ptr<Request>> m_requests;
 };
 
-BodyManager::BodyManager(float translate_parameter, glm::vec3 generation_point, std::shared_ptr<glm::vec4> viewport_ptr, std::shared_ptr<glm::mat4> projection_matrix_ptr)
-    : m_translate_parameter(translate_parameter), m_generation_point(generation_point), m_viewport_ptr(viewport_ptr), m_projection_matrix_ptr(projection_matrix_ptr) { }
-
-std::optional<error_t> BodyManager::update() {
-    this->translate_bodies_closer(); 
+std::optional<error_t> BodyManager::update(float translate_parameter) {
+    this->translate_bodies_closer(translate_parameter); 
     if (auto err = this->process_requests(); err.has_value()) return err;
     if (auto err = this->destroy_bodies_behind_screen(); err.has_value()) return err;
     return std::nullopt;
 }
 
-std::vector<std::shared_ptr<Body>> const& BodyManager::bodies() const {
+std::vector<std::unique_ptr<Body>> const& BodyManager::bodies() const {
     return m_bodies;
 }
 
-void BodyManager::add_request(std::shared_ptr<Request> request) {
-    m_requests.push_back(request);
+void BodyManager::send_request(std::unique_ptr<Request> request) {
+    m_requests.push_back(std::move(request));
 }
 
 std::optional<error_t> BodyManager::process_requests() {
@@ -357,7 +359,7 @@ std::optional<error_t> BodyManager::destroy_bodies_behind_screen() {
 
     // nadji platonovo telo iza ekrana ako postoji
     auto iter = std::find_if(m_bodies.begin(), m_bodies.end(),
-            [](const std::shared_ptr<Body>& bptr) {
+            [](auto const& bptr) {
                 auto body_center = bptr->world_coordinates(glm::vec3(0,0,0));
                 if (body_center.z >= 0.0f)
                     return bptr->type() != BodyType::NON_PLATONIC;
@@ -371,7 +373,7 @@ std::optional<error_t> BodyManager::destroy_bodies_behind_screen() {
 
    // ako nema platonovih tela iza ekrana, obrisi sva obicna tela izvan ekrana
     m_bodies.erase(std::remove_if(m_bodies.begin(), m_bodies.end(), 
-            [](const std::shared_ptr<Body>& bptr) {
+            [](auto const& bptr) {
                 auto body_center = bptr->world_coordinates(glm::vec3(0,0,0));
                 if (body_center.z >= 0.0f)
                     return true;
@@ -381,9 +383,9 @@ std::optional<error_t> BodyManager::destroy_bodies_behind_screen() {
     return std::nullopt;
 }
 
-void BodyManager::translate_bodies_closer() {
+void BodyManager::translate_bodies_closer(float translate_parameter) {
     for (const auto &b_ptr : m_bodies) {
-        b_ptr->transform(glm::translate(glm::vec3(0,0,m_translate_parameter)));
+        b_ptr->transform(glm::translate(glm::vec3(0,0,translate_parameter)));
     }
 }
 
@@ -391,16 +393,16 @@ std::optional<error_t> BodyManager::Request::process_request(BodyManager &bm) co
     return do_process_request(bm);
 }
 
-BodyManager::RemoveBodyRequest::RemoveBodyRequest(BodyType type, glm::vec2 pointer_position) 
-    : m_body_type(type), m_pointer_position(pointer_position) { }
+BodyManager::RemoveBodyRequest::RemoveBodyRequest(BodyType type, glm::vec2 pointer_position, glm::vec4 const& viewport_ref, glm::mat4 const& projection_matrix_ref)
+    : m_body_type(type), m_pointer_position(pointer_position), m_viewport_ref(viewport_ref), m_projection_matrix_ref(projection_matrix_ref) { }
 
 
 std::optional<error_t> BodyManager::RemoveBodyRequest::do_process_request(BodyManager &bm) const {
     // TODO REIMPLEMENTIRATI
     // ZA SADA RADI SA RASTOJANJEM OD CENTRA MANJIM OD 100px
     auto iter = std::find_if(bm.m_bodies.begin(), bm.m_bodies.end(),
-        [&](const std::shared_ptr<Body>& bptr) {
-            auto body_center = bptr->project_to_plane(glm::vec3(0,0,0), *bm.m_viewport_ptr, *bm.m_projection_matrix_ptr);
+        [&](auto const& bptr) {
+            auto body_center = bptr->project_to_plane(glm::vec3(0,0,0), m_viewport_ref, m_projection_matrix_ref);
             if (glm::distance(body_center, m_pointer_position) <= 100)
                 return m_body_type == BodyType::NON_PLATONIC;
             else
@@ -412,8 +414,8 @@ std::optional<error_t> BodyManager::RemoveBodyRequest::do_process_request(BodyMa
 
     // obrisi tela na koja se klik odnosi
     bm.m_bodies.erase(std::remove_if(bm.m_bodies.begin(), bm.m_bodies.end(),
-            [&](const std::shared_ptr<Body>& bptr) {
-                auto body_center = bptr->project_to_plane(glm::vec3(0,0,0), *bm.m_viewport_ptr, *bm.m_projection_matrix_ptr);
+            [&](auto const& bptr) {
+                auto body_center = bptr->project_to_plane(glm::vec3(0,0,0), m_viewport_ref, m_projection_matrix_ref);
                 if (glm::distance(body_center, m_pointer_position) <= 100)
                     return true;
                 else 
@@ -423,15 +425,32 @@ std::optional<error_t> BodyManager::RemoveBodyRequest::do_process_request(BodyMa
      return std::nullopt;
 }
 
-BodyManager::GenerateBodyRequest::GenerateBodyRequest(std::shared_ptr<Body> body) 
-    : m_body(body) { }
+BodyManager::GenerateBodyRequest::GenerateBodyRequest(std::unique_ptr<Body> body) 
+    : m_body(std::move(body)) { }
 
 
 std::optional<error_t> BodyManager::GenerateBodyRequest::do_process_request(BodyManager &bm) const {
-    m_body->transform(glm::translate(bm.m_generation_point));
-    bm.m_bodies.push_back(m_body);
+    m_body->transform(glm::translate(m_body->spawn_point()));
+    bm.m_bodies.push_back(std::move(m_body));
     return std::nullopt;
 }
+
+struct _Data {
+    const float body_translate_parameter;
+    bool game_running;
+    const int timer_id;
+    const int timer_interval;
+
+    glm::vec3 body_spawn_point;
+    int body_generation_cooldown;
+    rg::BodyManager body_manager;
+    glm::mat4 projection_matrix;
+    glm::mat4 view_matrix;
+    glm::vec4 viewport;
+
+    rg::Mouse mouse;
+    rg::Keyboard keyboard;
+}; 
 
 } // namespace rg
 

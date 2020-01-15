@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "headers/stars.h"
+#include "../headers/stars.h"
 
 extern float sinTable[MAXANGLES];
 extern starRec stars[MAXSTARS];        //niz svih zvezdica

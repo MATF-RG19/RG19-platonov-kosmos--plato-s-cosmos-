@@ -5,7 +5,7 @@
 #include <time.h>
 #include <GL/glut.h>
 
-#include "headers/stars.h"
+#include "../headers/stars.h"
   
 GLenum doubleBuffer;
 GLint windWidth = 800, windHeight = 600;

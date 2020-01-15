@@ -4,7 +4,6 @@
 ![c++](https://img.shields.io/badge/language-c-orange)
 ![opengl](https://img.shields.io/badge/lib-opengl-green.svg)
 ![glut](https://img.shields.io/badge/lib-glut-green.svg)
-![glm](https://img.shields.io/badge/lib-glm-green.svg)
 
 ![alt text](platonic.gif?raw=true "Platonova tela")
 
@@ -20,13 +19,13 @@ Trajanje igre je oko 2 minuta.
 
 | Komanda | Opis (važi uz klik mišem) |
 | --- | --- |
-| *t* ili *T*| Uklanja tetraedar |
-| *h* ili *H*| Uklanja heksaedar |
-| *o* ili *O*| Uklanja oktaedar  |
-| *d* ili *D*| Uklanja dodekaedar|
-| *i* ili *I*| Uklanja ikosaedar |
-| *r* ili *R*| Restartuje igru   |
-| *Esc* | Prekida igru - zatvara prozor
+| <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar |
+| <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar |
+| <kbd> o </kbd> ili <kbd> O </kbd>| Uklanja oktaedar  |
+| <kbd> d </kbd> ili <kbd> D </kbd>| Uklanja dodekaedar|
+| <kbd> i </kbd> ili <kbd> I </kbd>| Uklanja ikosaedar |
+| <kbd> r </kbd> ili <kbd> R </kbd>| Restartuje igru   |
+| <kbd> Esc </kbd>| Prekida igru - zatvara prozor
 
 ## :mortar_board: Autor
 Miloš Krsmanovic, 263/2015

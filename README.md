@@ -1,7 +1,7 @@
 # Platonov kosmos
 ### RG19-platonov-kosmos
 
-![c++](https://img.shields.io/badge/language-c%2B%2B-orange)
+![c++](https://img.shields.io/badge/language-c-orange)
 ![opengl](https://img.shields.io/badge/lib-opengl-green.svg)
 ![glut](https://img.shields.io/badge/lib-glut-green.svg)
 ![glm](https://img.shields.io/badge/lib-glm-green.svg)

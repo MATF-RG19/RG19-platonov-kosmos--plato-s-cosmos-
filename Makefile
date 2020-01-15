@@ -1,18 +1,26 @@
-PROGRAM = main
-CXX      = g++
-CXXFLAGS  = -g -Wall -Wextra -std=c++17 -Wno-unused
-LDLIBS  = -lglut -lGLU -lGL -lm
+PROGRAM   = main
+CC        = gcc
+CFLAGS    = -g -Wall
+LDLIBS    = -lGL -lGLU -lglut -lm
 
-$(PROGRAM): main.o classes.o glm/libglm_static.a
-	$(CXX) $^ -o $@ $(LDLIBS) $(CXXFLAGS)
+main: main.o stars.o
+	$(CC) $(CFLAGS) -o main *.o $(LDLIBS)
 
-main.o: main.cpp
-	$(CXX) -c $< $(CXXFLAGS)
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c $(LDLIBS)
+	
+stars.o:
+	$(CC) $(CFLAGS) -c stars.c $(LDLIBS)
 
-classes.o: classes.cpp
-	$(CXX) -c $< $(CXXFLAGS)
 
-.PHONY: clean
+.PHONY: clean dist run
 
 clean:
-	-rm *.o $(PROGRAM) *core
+	-rm -f *.o $(PROGRAM) *core
+
+dist: clean
+	-tar -chvj -C .. -f ../$(PROGRAM).tar.bz2 $(PROGRAM)
+
+run:
+	./$(PROGRAM)
+

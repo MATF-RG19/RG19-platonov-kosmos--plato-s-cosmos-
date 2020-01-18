@@ -47,7 +47,7 @@ void RotatePoint(float *x, float *y, float rotation){
   *y = tmpY;
 }
 
-void ShowStar(GLint n){
+void ShowStar(GLint n){   //iscrtavanje zvezdica
   float x0, y0, x1, y1, width;
   GLint i;
 

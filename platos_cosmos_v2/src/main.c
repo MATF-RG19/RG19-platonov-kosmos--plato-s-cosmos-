@@ -61,6 +61,7 @@ void Idle(void){
 }
 
 void Display(void){
+  glutSolidCube(10);
   ShowStars();
   if (doubleBuffer) {
     glutSwapBuffers();

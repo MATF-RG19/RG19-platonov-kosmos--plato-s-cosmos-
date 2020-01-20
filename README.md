@@ -15,9 +15,15 @@ Pored Platonovih tela, ka igraču se kreću sitne zvezde i asteroidi.
 Svako na vreme uklonjeno telo donosi 100 poena. 
 Trajanje igre je oko 2 minuta.
 
+## :wrench: Instalacija
+- `git clone` https://github.com/MATF-RG19/RG19-platonov-kosmos--plato-s-cosmos-
+- `cd RG19-platonov-kosmos--plato-s-cosmos-/`
+- `make`
+- `make run`
+
 ## :video_game: Komande 
 
-| Komanda | Opis (važi uz klik mišem) |
+| Komanda | Opis |
 | --- | --- |
 | <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar |
 | <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar |

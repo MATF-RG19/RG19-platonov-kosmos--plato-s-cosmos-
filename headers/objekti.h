@@ -15,20 +15,27 @@ typedef enum {
 	HEKSAEDAR  = 2,
 	OKTAEDAR   = 3,
 	DODEKAEDAR = 4,
-	IKOSAEDAR  = 5
+	IKOSAEDAR  = 5,
+    TORUS      = 6,
+    SFERA      = 7,
+    KONUS      = 8,
+    PLANETA    = 9
 }tip_tela;
 
 typedef struct {
-    float x;
-    float z;
-    bool is_pogodjena;
-    float pogodjena_parametar;
+    int x;
+    float y;
+    bool is_platonic;
+    //int polozaj_x_osa; 
     tip_tela tip;
-}Plat_telo;
+}Telo;
 
-void iscrtaj_ose(); 
-Plat_telo napravi_prepreke();
-void nacrtaj_plat_tela();
+void iscrtaj_ose(float len); 
+void iscrtaj_metak();
+Telo napravi_telo();
+void inicijalizuj_tela();
+void azuriraj_tela();
+void nacrtaj_tela();
 void nacrtaj_kosmos();
 void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana);
 void initialise();

@@ -10,122 +10,188 @@
 
 const float maks_brizna = 0.1;
 const float korak_mete = 3;
-float brzina_mete = 0.02;
+
+float paramtar_y = 0.02;
 float parametarPom = 0.1;
-Plat_telo prepreke[MAX_TELA];
+int polozaj_x_osa = -1; //menja se (alternira) za svako telo 
+int param1=1;
+Telo sva_tela[MAX_TELA];
 
 GLuint wall_texture_name;
 
-//Pomocna funkcija za iscrtavanje kordinatnog sistema
-void iscrtaj_ose(){
+void iscrtaj_ose(float len) {
+    glDisable(GL_LIGHTING);
+
     glBegin(GL_LINES);
-        glColor3f(1, 0, 0);
-        glVertex3f(1, 0, 0);
-        glVertex3f(-1, 0, 0);
+        glColor3f(1,0,0);
+        glVertex3f(0,0,0);
+        glVertex3f(len,0,0);
 
-        glColor3f(0, 0, 1);
-        glVertex3f(0, 1, 0);
-        glVertex3f(0, -1, 0);
+        glColor3f(0,1,0);
+        glVertex3f(0,0,0);
+        glVertex3f(0,len,0);
 
-        glColor3f(0, 1, 0);
-        glVertex3f(0, 0,  1);
-        glVertex3f(0, 0, -1);
-
-        float coef = 1.0/10;
-        for (float i=-1; i < 1; i+= coef) {
-            glColor3f(1, 0, 0);
-            glVertex3f(i, -0.1*coef, 0);
-            glVertex3f(i, +0.1*coef, 0);
-
-            glColor3f(0, 0, 1);
-            glVertex3f(-0.1*coef, i, 0);
-            glVertex3f(+0.1*coef, i, 0);
-
-            glColor3f(0, 1, 0);
-            glVertex3f(-0.1*coef, 0, i);
-            glVertex3f(+0.1*coef, 0, i);
-        }
-
+        glColor3f(0,0,1);
+        glVertex3f(0,0,0);
+        glVertex3f(0,0,len);
     glEnd();
+
+    glEnable(GL_LIGHTING);
 }
 
-//Funkcije za prepreke
-Plat_telo napravi_prepreke(){
-	Plat_telo tmp;
-    	tmp.x =  -10;
-    	tmp.z = -5;
-        tmp.pogodjena_parametar = 0;
-        tmp.is_pogodjena = false;
-    	tmp.tip = (rand() % 5) + 1;  //dodaje se 1 jer su tela numerisana od 1 --->TODO
-    	return tmp;
+void inicijalizuj_tela(){	
+	for(int i = 0; i < MAX_TELA; i++){
+        	sva_tela[i] = napravi_telo();
+    }
 }
 
-void nacrtaj_plat_tela(){
+//Funkcija za pravljenje tela
+//Vraca strukturu koja opsuje telo (ne nuzno Platonovo)
+Telo napravi_telo(){
+	Telo t;
+        t.x = (rand() % 6) * polozaj_x_osa;
+    	t.y = (rand() % 20) + param1;
+        t.is_platonic = false;     //Inicijalno, telo nije platonovo
+    	t.tip = (rand() % 9) + 1;  //dodaje se 1 jer su tela numerisana od 1 
+        
+        polozaj_x_osa *= -1;
+        param1+=1;
+        //printf("%d \t", t.x);  
+    	return t;
+}
 
-	for(int i=0;i<MAX_TELA;i++){
-            	glPushMatrix();
-            	glTranslatef(prepreke[i].x, 0,prepreke[i].z );
- 				glRotatef(parametarPom, 1, 1, 0);
-            	switch (prepreke[i].tip){
-            		case TETRAEDAR:
-            			glPushMatrix();
-    						glTranslatef(0,-1,0);
-    						glScalef(0.8, 0.8, 0.8);
-    						glBegin(GL_TRIANGLE_STRIP); //boje podesene samo radi lakseg iscrtavanja
-    							/*glColor3f(1, 0, 0); 
-    							glColor3f(0, 0, 1); 
-    							glColor3f(1, 0, 0); 
-    							glColor3f(0, 0, 1); 
-    							glColor3f(1, 0, 0); 
-    							glColor3f(0, 0, 1); */
+void azuriraj_tela(){
+	int i;
 
-    							glVertex3f(0, 2, 0);
-								glVertex3f(-1, 0, 1);
-								glVertex3f(1, 0, 1);
-								glVertex3f(0, 0, -1.4);
-								glVertex3f(0, 2, 0);
-								glVertex3f(-1, 0, 1);
-    						glEnd();
-    					glPopMatrix();
-            	        break;
-            		case HEKSAEDAR: 
-            			glPushMatrix();
-            				glutSolidCube(0.9); 
-            				printf("%d\t", prepreke[i].tip);
-            				break;
-            			glPopMatrix();
-            		case OKTAEDAR:
-            			glPushMatrix();
-            				glScalef(0.6, 0.6, 0.6);
-            				glutSolidOctahedron(); 
-            				printf("%d\t", prepreke[i].tip);
-            				break;
-            			glPopMatrix();
-            		case DODEKAEDAR:
-            			glPushMatrix();
-            				glScalef(0.6, 0.6, 0.6);
-            				glutSolidDodecahedron(); 
-            				printf("%d\t", prepreke[i].tip);
-            				break;
-            			glPopMatrix();
-            		case IKOSAEDAR:
-            			glPushMatrix();
-            				glScalef(0.6, 0.6, 0.6);
-            				glutSolidIcosahedron(); 
-							printf("%d\t", prepreke[i].tip);
-            				break;	
-            			glPopMatrix();
-            		//default: 
-            			//glutWireCube(1);
-            			//printf("%d\t", prepreke[i].tip);
-            	}
-            	glPopMatrix();
-            	parametarPom += 0.02;
-      		glPopMatrix();
+	if(paramtar_y < 0.1)
+		paramtar_y += 0.00005;
+
+	for (i = 0; i < MAX_TELA; i++) {
+        	sva_tela[i].y -= paramtar_y;
 	}
 }
 
-//Delovi koda za teksture, preuzeti sa sajta asistenta
+void nacrtaj_tela(){
+	/*GLfloat ambient_coeffs[] = {0.05375, 0.05, 0.06625, 1};
+    	GLfloat diffuse_coeffs[] = {0.1, 0.4, 1, 1};
+    	GLfloat specular_coeffs[] = {0.332741, 0.528634, 0.346435, 1};
+	GLfloat shininess = 0.3*128;
+	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient_coeffs);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse_coeffs);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular_coeffs);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);*/
+    
+    float tetredar_koef[][3] = {
+                                {0.0f, 1.0f, 0.0f}, 
+                                {0.943f, -0.333f, 0.0f}, 
+                                {-0.471f, -0.333f, 0.8165f}, 
+                                {-0.471f, -0.333f, -0.8165f}};
+
+    float materialAmbientColor[][3] = {
+                                       {1.0f, 0.5f, 0.0f}, 
+                                       {1.0f, 1.0f, 1.0f}, 
+                                       {1.0f, 0.0f, 0.0f},
+                                       {0.0f, 0.0f, 0.0f}};
+
+    float materialSpecularColor[][3] = {
+                                        {1.0f, 0.5f, 0.0f}, 
+                                        {1.0f, 1.0f, 1.0f}, 
+                                        {1.0f, 0.0f, 0.0f},
+                                        {0.0f, 0.0f, 0.0f}};
+                    
+    int points[] = {1, 2, 0, 3, 1}; //za tetredar
+
+
+	for(int i=0;i<MAX_TELA;i++){
+        glMaterialfv(GL_FRONT, GL_AMBIENT, materialAmbientColor[i]);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecularColor[i]);
+        
+        glPushMatrix();
+            glTranslatef(sva_tela[i].x, sva_tela[i].y, 0);
+ 			glRotatef(parametarPom/3, 1, 1, 1);    //objekti se (radi lakseg prepoznavanja) rotiraju po sve 3 ose
+            switch (sva_tela[i].tip){      
+            	case TETRAEDAR:     
+                    glPushMatrix();                
+                    for (int i = 0; i < 3 ; i++) {
+                        glBegin(GL_TRIANGLE_STRIP);
+                            glVertex3fv(tetredar_koef[points[i]]);
+                            glVertex3fv(tetredar_koef[points[i + 1]]);
+                            glVertex3fv(tetredar_koef[points[i + 2]]);
+                        glEnd();
+                            }
+                            /*
+                            glBegin(GL_TRIANGLE_STRIP);
+                                glColor3f(1, 1, 1); glVertex3f(0, 2, 0);
+                                glColor3f(1, 0, 0); glVertex3f(-1, 0, 1);
+                                glColor3f(0, 1, 0); glVertex3f(1, 0, 1);
+                                glColor3f(0, 0, 1); glVertex3f(0, 0, -1.4);
+                                glColor3f(1, 1, 1); glVertex3f(0, 2, 0);
+                                glColor3f(1, 0, 0); glVertex3f(-1, 0, 1);
+                            glEnd();*/
+                        glPopMatrix();
+            	    break;
+
+            	case HEKSAEDAR: 
+            		glPushMatrix();
+            			glutSolidCube(0.4); 
+            		glPopMatrix();
+            	    break;
+
+            	case OKTAEDAR:
+            		glPushMatrix();
+            			glScalef(0.4, 0.4, 0.4);
+            			glutSolidOctahedron(); 
+            		glPopMatrix();
+            		break;
+
+            	case DODEKAEDAR:
+            		glPushMatrix();
+            			glScalef(0.4, 0.4, 0.4);
+            			glutSolidDodecahedron(); 
+            		glPopMatrix();
+            		break;
+
+            	case IKOSAEDAR:
+            		glPushMatrix();
+            			glScalef(0.4, 0.4, 0.4);
+            			glutSolidIcosahedron(); 
+            		glPopMatrix();
+            		break;	
+                case TORUS:
+                    glPushMatrix();
+                        glScalef(0.4, 0.4, 0.4);
+                        glutSolidTorus(0.4,0.8,20,20); 
+                    glPopMatrix();
+                    break;
+                case SFERA:
+                    glPushMatrix();
+                        glScalef(0.4, 0.4, 0.4);
+                        glutSolidSphere(1,50,50); 
+                    glPopMatrix();        
+                    break;
+                case KONUS:
+                    glPushMatrix();
+                        glScalef(0.4, 0.4, 0.4);
+                        glutSolidCone(0.7,1,30,30); 
+                    glPopMatrix();
+                    break;
+                case PLANETA: 
+                    glPushMatrix();
+                        glScalef(0.4, 0.4, 0.4);
+                        glutSolidTorus(0.2,1.5,20,20); 
+                        glutSolidSphere(1,50,50); 
+                    glPopMatrix();
+                    break;
+            	default: 
+            		glutWireCube(1); //korisceno kao debug telo
+            }
+            glPopMatrix();
+            parametarPom += 0.02;
+        glPopMatrix();
+	}
+}//f-ja iscrtaj plat telo
+
 void initialise(){
     /* Objekat koji predstavlja teskturu ucitanu iz fajla. */
     Image * image;
@@ -175,6 +241,7 @@ void initialise(){
     image_done(image);
 }
 
+
 //Funkcija za crtanje zida
 void nacrtaj_kosmos(){
 	const static GLfloat material_emission[] = { 0.15, 0.15, 0.15, 1 };
@@ -208,7 +275,8 @@ void nacrtaj_kosmos(){
 }
 
 //Funkcija za ispis teksta
-void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana){
+void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana)
+{
 	glDisable(GL_LIGHTING);
 
     glMatrixMode(GL_MODELVIEW);
@@ -226,8 +294,8 @@ void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekra
 	glRasterPos2f(x, y);
 
 	int len= strlen(tekst);
-	for (int i = 0; i < len; i++){
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, tekst[i]);
+	for (int i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, tekst[i]);
 	}
 
 	glMatrixMode(GL_MODELVIEW);

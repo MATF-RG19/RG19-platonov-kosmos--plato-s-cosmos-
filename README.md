@@ -23,7 +23,7 @@ Trajanje igre je oko 2 minuta.
 
 ## :video_game: Komande 
 
-| Komanda | Opis (važi uz klik mišem) |
+| Komanda | Opis |
 | --- | --- |
 | <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar |
 | <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar |

@@ -113,7 +113,7 @@ static void on_display(){
 	//Iscrtavanje kosmosa
     	glBindTexture(GL_TEXTURE_2D, wall_texture_name);
         glPushMatrix();
-            glScalef(300, 300, 1);
+            //glScalef(300, 300, 1);
             glTranslatef(0, -0.2, -20);
 	    glScalef(-1,1,1);
             glTranslatef(0,0,-20);
@@ -121,12 +121,11 @@ static void on_display(){
         glPopMatrix();
     	glBindTexture(GL_TEXTURE_2D, 0);
 
-    //Donji deo (kosmosa) - todo: naci bolje resenje
+    //Donji deo (kosmosa)
 	glBindTexture(GL_TEXTURE_2D, wall_texture_name);
 	glPushMatrix();
 		glTranslatef(0,-24,0);
 		glRotatef(90,1,0,0);
-		glScalef(300, 300, 1);
 		nacrtaj_kosmos();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -241,6 +240,37 @@ static void on_key_press(unsigned char key, int x, int y)
 		case 'P':
 			animation_ongoing = !animation_ongoing;
 			break;
+
+		//Uklanjanje tetraedra
+		case 't':
+		case 'T':
+			ukloni_telo('t');
+			break;
+
+		//Uklanjanje heksaedra
+		case 'h':
+		case 'H':
+			ukloni_telo('h');
+			break;
+
+		//Uklanjanje oktaedra
+		case 'o':
+		case 'O':
+			ukloni_telo('o');
+			break;
+
+		//Uklanjanje dodekaedra
+		case 'd':
+		case 'D':
+			ukloni_telo('d');
+			break;
+
+		//Uklanjanje ikosaedra
+		case 'i':
+		case 'I':
+			ukloni_telo('i');
+			break;
+
 		//Zavrsava se program
 		case 27:
 			glDeleteTextures(1, &wall_texture_name);

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define MAX_TELA 500
+#define MAX_TELA 300
 
 typedef struct {
     float x;
@@ -37,8 +37,9 @@ void inicijalizuj_tela();
 void azuriraj_tela();
 void nacrtaj_tela();
 void nacrtaj_kosmos();
-void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana);
 void initialise();
+void ukloni_telo(char tip_tela);
+void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana);
 
 #endif
 

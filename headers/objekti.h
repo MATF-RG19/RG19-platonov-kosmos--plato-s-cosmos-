@@ -25,8 +25,8 @@ typedef enum {
 typedef struct {
     int x;
     float y;
-    bool is_platonic;
-    //int polozaj_x_osa; 
+    bool is_platonic; 
+    bool pogodjeno;
     tip_tela tip;
 }Telo;
 
@@ -38,7 +38,7 @@ void azuriraj_tela();
 void nacrtaj_tela();
 void nacrtaj_kosmos();
 void initialise();
-void ukloni_telo(char tip_tela);
+bool ukloni_telo(char tip_tela);
 void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana);
 
 #endif

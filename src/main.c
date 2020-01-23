@@ -16,30 +16,29 @@ static void on_timer(int timer_id);
 static void on_timer1(int id);
 extern void initialise();
 
-int vreme = 120; //TODO timer
+/* GLOBALNE PROMENLJIVE */
 
 extern GLuint wall_texture_name;
 
-Telo sva_tela[MAX_TELA];
-int br_pogodjenih_prepreka=0;
-
-/* GLOBALNE PROMENLJIVE */
+Telo sva_tela[MAX_TELA]; //niz svih tela
 
 float pozicija = 0.0f;
 
+int broj_pogodjenih = 0;
+
 int timer_id = 0;
 int timer_interval = 15;
-bool kraj_simulacije = false;
-double parametar1 = 0;
+bool istek_vremena = false;
 
+double parametar1 = 0;
+double parametar2 = 0; //koriscen za ogranicavanje vremena igranja
+int animation_ongoing = 0;
 
 int screen_width = 0;
 int screen_height = 0;
 
-int animation_ongoing = 0;
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char * argv[]){
 	/* Inicijalizuje se GLUT */
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -57,7 +56,7 @@ int main(int argc, char * argv[])
 
 	glEnable(GL_DEPTH_TEST);
 
-	GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1 };
+	GLfloat light_ambient[] = { 0.3, 0.3, 0.3, 1 };
 	GLfloat light_diffuse[] = { 1, 1, 1, 1 };
 	GLfloat light_specular[] = { 1, 1, 1, 1 };
 	
@@ -80,13 +79,12 @@ int main(int argc, char * argv[])
 
 	/* Pozicionira se svijetlo */
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);	
-	
+
 	initialise();   
 
 	inicijalizuj_tela();
 
-	/* Inicijalna boja poc. menija (midnight blue) */
-	glClearColor(0.098, 0.098, 0.439, 0);
+	glClearColor(0, 0, 0, 0);
 
 	/* Program ulazi u glavnu petlju */
 	glutMainLoop();
@@ -111,15 +109,14 @@ static void on_display(){
 	nacrtaj_tela();
 	
 	//Iscrtavanje kosmosa
-    	glBindTexture(GL_TEXTURE_2D, wall_texture_name);
-        glPushMatrix();
-            //glScalef(300, 300, 1);
-            glTranslatef(0, -0.2, -20);
-	    glScalef(-1,1,1);
-            glTranslatef(0,0,-20);
-            nacrtaj_kosmos();
-        glPopMatrix();
-    	glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, wall_texture_name);
+    glPushMatrix();
+        glTranslatef(0, -0.2, -20);
+	 	glScalef(-1,1,1);
+        glTranslatef(0,0,-20);
+        nacrtaj_kosmos();
+    glPopMatrix();
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     //Donji deo (kosmosa)
 	glBindTexture(GL_TEXTURE_2D, wall_texture_name);
@@ -134,33 +131,31 @@ static void on_display(){
 	//Tekst tokom igre
 	if(animation_ongoing  && parametar1>=2){
     	char str1[255];
-    	sprintf(str1, "   Br. pogodaka: %d / %d", br_pogodjenih_prepreka, MAX_TELA);
+    	sprintf(str1, "   Br. pogodaka: %d ", broj_pogodjenih);
    		ispisi_tekst(str1, 2, 570, screen_width, screen_height);
 
+
    		char str[255];
-   		sprintf(str, "Preostalo vreme: %d s", vreme);		//TODO timer
+   		sprintf(str, "Preostalo vreme: %.2fs", 60 - parametar2);	//60 sekundi za igru 
     	ispisi_tekst(str, screen_width - strlen(str1) - 220, 570, screen_width, screen_height);
     	
-
-		if (kraj_simulacije || br_pogodjenih_prepreka==10) {
+    	if (istek_vremena==false && broj_pogodjenih==20){
 			glPushMatrix();
-				glScalef(1000, 1000, 1);
+				glScalef(100, 100, 1);
 				glTranslatef(0, 0, 1);
-				nacrtaj_kosmos();
+				nacrtaj_kosmos(); //iscrtavanje panela za obavestenje o pobedi
 			glPopMatrix();
+
 			
-			if(br_pogodjenih_prepreka==10){
-				char str2[255];
-				sprintf(str2, "Pobedio si, pogodjeno: %d", br_pogodjenih_prepreka);
-				ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
-				ispisi_tekst("          ESC - izlaz ", screen_width/2 - strlen(str1) - 120, screen_height/2-40, screen_width, screen_height);
-			}
-			else{	
-        			char str2[255];
-        			sprintf(str2, "Izgubio si, pogodjeno: %d", br_pogodjenih_prepreka);
-				ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
-				ispisi_tekst("          ESC - izlaz ", screen_width/2 - strlen(str1) - 120, screen_height/2-40, screen_width, screen_height);
-			}
+			char str2[255];
+			sprintf(str2, "Pobedio si! Pogodjeno: %d", broj_pogodjenih);
+			ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
+			ispisi_tekst("          ESC - izlaz ", screen_width/2 - strlen(str1) - 120, screen_height/2-40, screen_width, screen_height);
+		}
+		else if(istek_vremena){	
+        	char str2[255];
+        	sprintf(str2, "Vreme je isteklo, pogodjeno tela: %d", broj_pogodjenih);
+			ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
 		}
 	}
 
@@ -205,8 +200,7 @@ static void on_display(){
 	glutSwapBuffers();
 }
 
-static void on_reshape(int width, int height)
-{
+static void on_reshape(int width, int height){
 	// Podesava se viewport
 	glViewport(0, 0, width, height);
     	
@@ -222,16 +216,15 @@ static void on_reshape(int width, int height)
 }
 
 //Komande na tastaturi
-static void on_key_press(unsigned char key, int x, int y)
-{
+static void on_key_press(unsigned char key, int x, int y){
 	switch (key) {
 		
 		//Pokretanje
 		case 's':
 		case 'S':
-			if (!kraj_simulacije) {
+			if (!istek_vremena) {
 		    		animation_ongoing=1;
-		    		glutTimerFunc(17, on_timer1, 0);
+		    		glutTimerFunc(18, on_timer1, 0);
 		    		glutPostRedisplay();
 			}
 			break;
@@ -244,31 +237,36 @@ static void on_key_press(unsigned char key, int x, int y)
 		//Uklanjanje tetraedra
 		case 't':
 		case 'T':
-			ukloni_telo('t');
+			if(ukloni_telo('t'))
+				broj_pogodjenih++;
 			break;
 
 		//Uklanjanje heksaedra
 		case 'h':
 		case 'H':
-			ukloni_telo('h');
+			if(ukloni_telo('h'))
+				broj_pogodjenih++;
 			break;
 
 		//Uklanjanje oktaedra
 		case 'o':
 		case 'O':
-			ukloni_telo('o');
+			if(ukloni_telo('o'))
+				broj_pogodjenih++;
 			break;
 
 		//Uklanjanje dodekaedra
 		case 'd':
 		case 'D':
-			ukloni_telo('d');
+			if(ukloni_telo('d'))
+				broj_pogodjenih++;
 			break;
 
 		//Uklanjanje ikosaedra
 		case 'i':
 		case 'I':
-			ukloni_telo('i');
+			if(ukloni_telo('i'))
+				broj_pogodjenih++;
 			break;
 
 		//Zavrsava se program
@@ -282,33 +280,43 @@ static void on_key_press(unsigned char key, int x, int y)
 //Tajmer
 static void on_timer(int id) {
 	//Proverava se da li callback dolazi od odgovarajuceg tajmera i kraj simulacije
-   	if (id != timer_id || kraj_simulacije)
+   	if (id != timer_id || istek_vremena)
         	return;
 
+        
 	//Parametar1 za tacku pogleda
     	if(animation_ongoing){
-		parametar1 += 0.03;
-		if(parametar1 >= 2)
-		    parametar1 = 2;
+			parametar1 += 0.04;
+			
+			if(parametar1 >= 2){
+		    	parametar1 = 2;
+				parametar2 += 0.03; /*Tek kada se sve postavi na scenu i zavrsi pocetna
+									animacija, krece tajmer za igru.
+									Kako se ovaj tajmer (tj. f-ja on_timer) poziva na 
+									svakih 15ms, to se za 1 sekundu pozove 66.6 puta. 
+									Parametar2 je podesen tako da za 1 sekundu dostigne 
+									vrednost 1.*/ 
+		    	if(parametar2>=60){	//nakon 60 sekundi, igra se prekida
+		    		parametar2=60;
+		    		istek_vremena=true;
+		    	}
+			}
         }
 
-	//Kraj simulacije
-    	if (sva_tela[MAX_TELA-1].x < -10)
-        	kraj_simulacije = true;
-    
 	//Forsira se ponovno iscrtavanje prozora
 	glutPostRedisplay();
 	glutTimerFunc(timer_interval, on_timer, timer_id);
 }
 
-//Tajmer za sva_tela
+//Tajmer za tela
 static void on_timer1(int id){
+
 	//Proverava se da li callback dolazi od odgovarajuceg tajmera i kraj simulacije
-	if(id != 0 || kraj_simulacije)
+	if(id != 0 || istek_vremena)
 		return;
 
 	azuriraj_tela();
 	
 	if(animation_ongoing)
-		glutTimerFunc(17, on_timer1, 0);
+		glutTimerFunc(18, on_timer1, 0);
 }

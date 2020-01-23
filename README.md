@@ -8,12 +8,11 @@
 ![alt text](platonic.gif?raw=true "Platonova tela")
 
 ## :pencil2: Opis igre
-Igrac se nalazi u zamišljenom prostoru dok mu se približavaju tela. 
-Kada igrac uoci neko od pet **Platonovih tela**, uklanja ga držeći pritisnut odgovarajući taster (*t-tetraedar, h-heksaedar, o-oktaedar, d-dodekaedar, i-ikosaedar*) i klikom na to telo. Ukoliko ne stigne, a brzine se konstantno povecava tokom igre, zbir poena mu se umanjuje za 50.  
-Pored Platonovih tela, ka igraču se kreću sitne zvezde i asteroidi.   
+Igrač se nalazi u zamišljenom prostoru (*kosmosu*) među raznim telima koja padaju. 
+Kada igrac uoči neko od pet **Platonovih tela**, uklanja ga pritiskom na odgovarajući taster (*t-tetraedar, h-heksaedar, o-oktaedar, d-dodekaedar, i-ikosaedar*). Igrač gubi ukoliko ne stigne da prepozna i ukloni 20 tela za 60 sekundi.
+Pored Platonovih tela, u kosmosu se nalaze i druga tela kao i planete na koje igrač ne treba da reaguje.   
 
-Svako na vreme uklonjeno telo donosi 100 poena. 
-Trajanje igre je oko 2 minuta.
+Trajanje igre: 60 sekundi.
 
 ## :wrench: Instalacija
 - `git clone` https://github.com/MATF-RG19/RG19-platonov-kosmos--plato-s-cosmos-
@@ -25,12 +24,12 @@ Trajanje igre je oko 2 minuta.
 
 | Komanda | Opis |
 | --- | --- |
+| <kbd> s </kbd> ili <kbd> S </kbd>| Startuje igru   |
 | <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar |
 | <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar |
 | <kbd> o </kbd> ili <kbd> O </kbd>| Uklanja oktaedar  |
 | <kbd> d </kbd> ili <kbd> D </kbd>| Uklanja dodekaedar|
 | <kbd> i </kbd> ili <kbd> I </kbd>| Uklanja ikosaedar |
-| <kbd> r </kbd> ili <kbd> R </kbd>| Restartuje igru   |
 | <kbd> Esc </kbd>| Prekida igru - zatvara prozor
 
 ## :mortar_board: Autor

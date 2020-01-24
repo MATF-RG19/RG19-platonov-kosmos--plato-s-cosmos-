@@ -10,10 +10,10 @@
 ## :pencil2: Opis igre
 Igrač se nalazi u zamišljenom prostoru (*kosmosu*) među raznim telima koja padaju. 
 Kada igrac uoči neko od pet **Platonovih tela**, uklanja ga pritiskom na odgovarajući taster (*t-tetraedar, h-heksaedar, o-oktaedar, d-dodekaedar, i-ikosaedar*). Ukoliko ne stigne, igrač gubi jedan od 20 života za svako Platonovo telo koje je prošlo. 
-Igrač pobeđuje ako za 60 sekundi stigne da ukloni 30 tela. \
-Pored Platonovih tela, u kosmosu se nalaze i druga tela kao i planete na koje igrač ne treba da reaguje.   
 
-Trajanje igre: 60 sekundi.
+- Igrač pobeđuje ako za 60 sekundi stigne da ukloni 30 tela, a gubi ukoliko ostane bez svih života ili ukoliko istekne vreme.
+
+- Pored Platonovih tela, u kosmosu se nalaze i druga tela kao i planete na koje igrač ne treba da reaguje.   
 
 ## :wrench: Instalacija
 

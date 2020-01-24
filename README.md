@@ -15,6 +15,8 @@ Kada igrac uoči neko od pet **Platonovih tela**, uklanja ga pritiskom na odgova
 
 - Pored Platonovih tela, u kosmosu se nalaze i druga tela kao i planete na koje igrač ne treba da reaguje.   
 
+- Padanje tela se može dodatno ubrzati pritiskom na strelicu nadole (:arrow_down:).
+
 ## :wrench: Instalacija
 
 **Instalacija biblioteke OpenGL:**
@@ -31,12 +33,12 @@ Kada igrac uoči neko od pet **Platonovih tela**, uklanja ga pritiskom na odgova
 | Komanda | Opis |
 | --- | --- |
 | <kbd> Enter </kbd> | Startuje igru   |
-| <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar |
-| <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar |
-| <kbd> o </kbd> ili <kbd> O </kbd>| Uklanja oktaedar  |
-| <kbd> d </kbd> ili <kbd> D </kbd>| Uklanja dodekaedar|
-| <kbd> i </kbd> ili <kbd> I </kbd>| Uklanja ikosaedar |
-| <kbd> Esc </kbd>| Prekida igru - zatvara prozor
+| <kbd> t </kbd> ili <kbd> T </kbd>| Uklanja tetraedar 	   		   |
+| <kbd> h </kbd> ili <kbd> H </kbd>| Uklanja heksaedar 	   		   |
+| <kbd> o </kbd> ili <kbd> O </kbd>| Uklanja oktaedar  	   		   |
+| <kbd> d </kbd> ili <kbd> D </kbd>| Uklanja dodekaedar	   		   |
+| <kbd> i </kbd> ili <kbd> I </kbd>| Uklanja ikosaedar 	   		   |
+| <kbd> Esc </kbd>				   | Prekida igru - zatvara prozor |
 
 ## :mortar_board: Autor
 Miloš Krsmanovic, 263/2015

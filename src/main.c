@@ -171,9 +171,9 @@ static void on_display(){
 		glPopMatrix();				//Koji obavestava igraca da je pobedio
 		
 		char str2[255];
-		sprintf(str2, "Pobedio si! Pogodjeno: %d", broj_pogodjenih);
+		sprintf(str2, "Pobedio si! Pogodjeno: %d tela", broj_pogodjenih);
 		ispisi_tekst(str2, screen_width/2 - 140, screen_height/2-5, screen_width, screen_height);
-		ispisi_tekst("          ESC - izlaz ", screen_width/2 - 140, screen_height/2-40, screen_width, screen_height);
+		ispisi_tekst("          ESC - izlaz ", screen_width/2 - 145, screen_height/2-40, screen_width, screen_height);
 	} 
 	
 
@@ -294,6 +294,7 @@ static void on_key_press(unsigned char key, int x, int y){
 	}
 }
 
+//Padanje tela se moze ubrzati pristikom na strelicu nadole
 void arrow_keys(int arrow, int x, int y){  
     
     switch (arrow){
@@ -351,7 +352,7 @@ static void on_timer1(int id){
 		}
 		
 		if(zivoti == 0){
-			//Ako je broj zivota 0, igrica se prekida i ispisuje se odgovarajuca poruka
+			//Ako je broj zivota 0, zaustavlja se animacija
 			animation_ongoing=0;
 			
 			break;

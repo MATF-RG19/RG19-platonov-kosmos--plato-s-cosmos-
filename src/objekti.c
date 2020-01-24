@@ -64,7 +64,7 @@ Telo napravi_telo(){
             t.is_platonic = false;     
         
         t.pogodjeno = false; //inicijalno, telo nije pogodjeno
-
+        t.proslo = false;
         polozaj_x_osa *= -1; //alternira, kako bi se tela podjednako iscrtavala na + i - delu x ose
         param_y_osa += 2;    //y koordinata tela se uvek povecava kako bi tela bila jednako razdvojena
     	return t;
@@ -204,8 +204,7 @@ bool ukloni_telo(char tip_tela){
                 if(sva_tela[i].is_platonic && sva_tela[i].pogodjeno == false){ 
                     if(sva_tela[i].y > -5 && sva_tela[i].y < 5){ //telo se nalazi u prozoru
                         if(sva_tela[i].tip == TETRAEDAR){
-                            sva_tela[i].pogodjeno = true;
-                            //printf("x:%d y:%f\n", sva_tela[i].x, sva_tela[i].y);      
+                            sva_tela[i].pogodjeno = true;   
                             sva_tela[i].y = sva_tela[i].y - 20; //za sada ovako, bice poboljsano
                             return true;
                         }
@@ -383,4 +382,3 @@ void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekra
 	   glPopMatrix();
 	glEnable(GL_LIGHTING);
 }
-

@@ -12,8 +12,10 @@
 static void on_display();
 static void on_reshape(int width, int height);
 static void on_key_press(unsigned char key, int x, int y);
+static void arrow_keys(int arrow, int x, int y);
 static void on_timer(int timer_id);
 static void on_timer1(int id);
+static void on_timer2(int id);
 extern void initialise();
 
 /* GLOBALNE PROMENLJIVE */
@@ -25,6 +27,7 @@ Telo sva_tela[MAX_TELA]; //niz svih tela
 float pozicija = 0.0f;
 
 int broj_pogodjenih = 0;
+int zivoti = 20;
 
 int timer_id = 0;
 int timer_interval = 15;
@@ -52,6 +55,7 @@ int main(int argc, char * argv[]){
 	glutDisplayFunc(on_display);
 	glutReshapeFunc(on_reshape);
 	glutKeyboardFunc(on_key_press);
+	glutSpecialFunc(arrow_keys);
     glutTimerFunc(timer_interval, on_timer, timer_id);
 
 	glEnable(GL_DEPTH_TEST);
@@ -134,32 +138,46 @@ static void on_display(){
     	sprintf(str1, "   Br. pogodaka: %d ", broj_pogodjenih);
    		ispisi_tekst(str1, 2, 570, screen_width, screen_height);
 
+   		char ostalo_zivota[255];
+   		sprintf(ostalo_zivota, "   Preostalo zivota: %d", zivoti);	//Inicijalno, 20 zivota  
+    	ispisi_tekst(ostalo_zivota, 2, 540, screen_width, screen_height);
 
-   		char str[255];
-   		sprintf(str, "Preostalo vreme: %.2fs", 60 - parametar2);	//60 sekundi za igru 
-    	ispisi_tekst(str, screen_width - strlen(str1) - 220, 570, screen_width, screen_height);
-    	
-    	if (istek_vremena==false && broj_pogodjenih==20){
-			glPushMatrix();
-				glScalef(100, 100, 1);
-				glTranslatef(0, 0, 1);
-				nacrtaj_kosmos(); //iscrtavanje panela za obavestenje o pobedi
-			glPopMatrix();
+   		char ostalo_vremena[255];
+   		sprintf(ostalo_vremena, "Preostalo vreme: %.2fs", 60 - parametar2);	//60 sekundi za igru 
+    	ispisi_tekst(ostalo_vremena, screen_width - strlen(str1) - 220, 570, screen_width, screen_height);
+	}    
 
-			
+	//Uslovi pod kojima se igra moze zavrsiti porazom
+	if(zivoti == 0 || istek_vremena){ 
+		if(istek_vremena){
 			char str2[255];
-			sprintf(str2, "Pobedio si! Pogodjeno: %d", broj_pogodjenih);
-			ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
-			ispisi_tekst("          ESC - izlaz ", screen_width/2 - strlen(str1) - 120, screen_height/2-40, screen_width, screen_height);
-		}
-		else if(istek_vremena){	
-        	char str2[255];
         	sprintf(str2, "Vreme je isteklo, pogodjeno tela: %d", broj_pogodjenih);
-			ispisi_tekst(str2, screen_width/2 - strlen(str1) - 120, screen_height/2-5, screen_width, screen_height);
+			ispisi_tekst(str2, screen_width/2 - 160, screen_height/2-5, screen_width, screen_height);
+		}
+		else{	//ako nije isteklo vreme, onda je igrac ostao bez zivota
+			char poruka[255];
+        	sprintf(poruka, "Izgubili ste sve zivote, pogodjeno tela: %d", broj_pogodjenih);
+			ispisi_tekst(poruka, screen_width/2 - 160, screen_height/2-5, screen_width, screen_height);
 		}
 	}
 
-	if(!animation_ongoing){
+
+	//Uslov pod kojim se igra zavrsava pobedom
+	if(istek_vremena == false && broj_pogodjenih==30){ 
+		glPushMatrix();
+			glScalef(100, 100, 1);	
+			glTranslatef(0, 0, 1);
+			nacrtaj_kosmos();		//Ukoliko igrac pobedi iscrtava se panel
+		glPopMatrix();				//Koji obavestava igraca da je pobedio
+		
+		char str2[255];
+		sprintf(str2, "Pobedio si! Pogodjeno: %d", broj_pogodjenih);
+		ispisi_tekst(str2, screen_width/2 - 140, screen_height/2-5, screen_width, screen_height);
+		ispisi_tekst("          ESC - izlaz ", screen_width/2 - 140, screen_height/2-40, screen_width, screen_height);
+	} 
+	
+
+	if(!animation_ongoing && zivoti != 0){
 		glPushMatrix();
 			glScalef(1000, 1000, 1);
 			glTranslatef(0, 0, 1);
@@ -174,7 +192,7 @@ static void on_display(){
 		char komande[255] = "Komande:";
 		ispisi_tekst(komande, screen_width/2 - strlen(komande) - 150, screen_height/2+35, screen_width, screen_height);
 
-		char str1[255] = "S/s - Pokretanje igrice";
+		char str1[255] = "Enter - Pokretanje igrice";
 		ispisi_tekst(str1, screen_width/2 - strlen(str1) - 135, screen_height/2, screen_width, screen_height);
 
 		char str2[255] = "P/p - Pauza";
@@ -219,13 +237,12 @@ static void on_reshape(int width, int height){
 static void on_key_press(unsigned char key, int x, int y){
 	switch (key) {
 		
-		//Pokretanje
-		case 's':
-		case 'S':
-			if (!istek_vremena) {
-		    		animation_ongoing=1;
-		    		glutTimerFunc(18, on_timer1, 0);
-		    		glutPostRedisplay();
+		//Pokretanje pritiskom na Enter
+		case 13:
+			if (!istek_vremena && !animation_ongoing){
+		    	animation_ongoing=1;
+		    	glutTimerFunc(18, on_timer1, 0);
+		    	glutPostRedisplay();
 			}
 			break;
 		//Pauza
@@ -277,9 +294,19 @@ static void on_key_press(unsigned char key, int x, int y){
 	}
 }
 
+void arrow_keys(int arrow, int x, int y){  
+    
+    switch (arrow){
+    	case GLUT_KEY_DOWN:      // Pritisnuta strelica nagore (^)
+    		glutTimerFunc(20, on_timer1, 0);
+			glutPostRedisplay();
+        	break;
+    }
+}
+
 //Tajmer
 static void on_timer(int id) {
-	//Proverava se da li callback dolazi od odgovarajuceg tajmera i kraj simulacije
+	//Proverava se da li callback dolazi od odgovarajuceg tajmera
    	if (id != timer_id || istek_vremena)
         	return;
 
@@ -292,8 +319,6 @@ static void on_timer(int id) {
 		    	parametar1 = 2;
 				parametar2 += 0.03; /*Tek kada se sve postavi na scenu i zavrsi pocetna
 									animacija, krece tajmer za igru.
-									Kako se ovaj tajmer (tj. f-ja on_timer) poziva na 
-									svakih 15ms, to se za 1 sekundu pozove 66.6 puta. 
 									Parametar2 je podesen tako da za 1 sekundu dostigne 
 									vrednost 1.*/ 
 		    	if(parametar2>=60){	//nakon 60 sekundi, igra se prekida
@@ -316,7 +341,35 @@ static void on_timer1(int id){
 		return;
 
 	azuriraj_tela();
-	
+
+	for(int i=0; i<MAX_TELA; i++) {
+		if(sva_tela[i].y < -6  && sva_tela[i].is_platonic && !sva_tela[i].pogodjeno && !sva_tela[i].proslo){
+			//Ukoliko se telo nalazi ispod ekrana a pri tom
+			//je telo Platonovo i nije pogodjeno => telo je proslo, a igrac gubi zivot
+			sva_tela[i].proslo = true;
+			zivoti --;
+		}
+		
+		if(zivoti == 0){
+			//Ako je broj zivota 0, igrica se prekida i ispisuje se odgovarajuca poruka
+			animation_ongoing=0;
+			
+			break;
+		}
+	}
+
 	if(animation_ongoing)
 		glutTimerFunc(18, on_timer1, 0);
+}
+
+static void on_timer2(int id){
+
+	//Proverava se da li callback dolazi od odgovarajuceg tajmera i kraj simulacije
+	if(id != 1 || istek_vremena)
+		return;
+
+	azuriraj_tela();
+
+	if(animation_ongoing)
+		glutTimerFunc(10, on_timer2, 1);
 }

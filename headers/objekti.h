@@ -27,6 +27,7 @@ typedef struct {
     float y;
     bool is_platonic; 
     bool pogodjeno;
+    bool proslo;
     tip_tela tip;
 }Telo;
 

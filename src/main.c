@@ -15,7 +15,6 @@ static void on_key_press(unsigned char key, int x, int y);
 static void arrow_keys(int arrow, int x, int y);
 static void on_timer(int timer_id);
 static void on_timer1(int id);
-static void on_timer2(int id);
 extern void initialise();
 
 /* GLOBALNE PROMENLJIVE */
@@ -32,7 +31,7 @@ int zivoti = 20;
 int timer_id = 0;
 int timer_interval = 15;
 bool istek_vremena = false;
-
+bool pobeda = false; 
 double parametar1 = 0;
 double parametar2 = 0; //koriscen za ogranicavanje vremena igranja
 int animation_ongoing = 0;
@@ -163,7 +162,7 @@ static void on_display(){
 
 
 	//Uslov pod kojim se igra zavrsava pobedom
-	if(istek_vremena == false && broj_pogodjenih==30){ 
+	if(istek_vremena==false && broj_pogodjenih==25){ 
 		glPushMatrix();
 			glScalef(100, 100, 1);	
 			glTranslatef(0, 0, 1);
@@ -173,11 +172,11 @@ static void on_display(){
 		char str2[255];
 		sprintf(str2, "Pobedio si! Pogodjeno: %d tela", broj_pogodjenih);
 		ispisi_tekst(str2, screen_width/2 - 140, screen_height/2-5, screen_width, screen_height);
-		ispisi_tekst("          ESC - izlaz ", screen_width/2 - 145, screen_height/2-40, screen_width, screen_height);
+		ispisi_tekst("          ESC - izlaz ", screen_width/2 - 130, screen_height/2-40, screen_width, screen_height);
 	} 
 	
 
-	if(!animation_ongoing && zivoti != 0){
+	if(!animation_ongoing && zivoti != 0 && !pobeda){
 		glPushMatrix();
 			glScalef(1000, 1000, 1);
 			glTranslatef(0, 0, 1);
@@ -249,6 +248,10 @@ static void on_key_press(unsigned char key, int x, int y){
 		case 'p':
 		case 'P':
 			animation_ongoing = !animation_ongoing;
+			if(animation_ongoing){
+				glutTimerFunc(20, on_timer1, 0);
+				glutPostRedisplay();
+			}
 			break;
 
 		//Uklanjanje tetraedra
@@ -286,7 +289,7 @@ static void on_key_press(unsigned char key, int x, int y){
 				broj_pogodjenih++;
 			break;
 
-		//Zavrsava se program
+		//Zavrsava se program pritiskom na Esc
 		case 27:
 			glDeleteTextures(1, &wall_texture_name);
 			exit(EXIT_SUCCESS);
@@ -322,9 +325,9 @@ static void on_timer(int id) {
 									animacija, krece tajmer za igru.
 									Parametar2 je podesen tako da za 1 sekundu dostigne 
 									vrednost 1.*/ 
-		    	if(parametar2>=60){	//nakon 60 sekundi, igra se prekida
-		    		parametar2=60;
-		    		istek_vremena=true;
+		    	if(parametar2 >= 60){	//nakon 60 sekundi, igra se prekida
+		    		parametar2 = 60;
+		    		istek_vremena = true;
 		    	}
 			}
         }
@@ -359,18 +362,11 @@ static void on_timer1(int id){
 		}
 	}
 
+	if(broj_pogodjenih == 25){
+		animation_ongoing = 0;
+		pobeda = true;
+	}
+
 	if(animation_ongoing)
 		glutTimerFunc(18, on_timer1, 0);
-}
-
-static void on_timer2(int id){
-
-	//Proverava se da li callback dolazi od odgovarajuceg tajmera i kraj simulacije
-	if(id != 1 || istek_vremena)
-		return;
-
-	azuriraj_tela();
-
-	if(animation_ongoing)
-		glutTimerFunc(10, on_timer2, 1);
 }

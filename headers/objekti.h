@@ -43,4 +43,3 @@ bool ukloni_telo(char tip_tela);
 void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekrana);
 
 #endif
-

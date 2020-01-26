@@ -23,8 +23,6 @@ extern GLuint wall_texture_name;
 
 Telo sva_tela[MAX_TELA]; //niz svih tela
 
-float pozicija = 0.0f;
-
 int broj_pogodjenih = 0;
 int zivoti = 20;
 
@@ -32,7 +30,7 @@ int timer_id = 0;
 int timer_interval = 15;
 bool istek_vremena = false;
 bool pobeda = false; 
-double parametar1 = 0;
+double parametar1 = 0; //koriscen za tacku pogleda
 double parametar2 = 0; //koriscen za ogranicavanje vremena igranja
 int animation_ongoing = 0;
 
@@ -148,7 +146,7 @@ static void on_display(){
 
 	//Uslovi pod kojima se igra moze zavrsiti porazom
 	if(zivoti == 0 || istek_vremena){ 
-		if(istek_vremena){
+		if(istek_vremena){ //slucajevi su razdvojeni zbog razlicitih poruka
 			char str2[255];
         	sprintf(str2, "Vreme je isteklo, pogodjeno tela: %d", broj_pogodjenih);
 			ispisi_tekst(str2, screen_width/2 - 160, screen_height/2-5, screen_width, screen_height);
@@ -222,7 +220,7 @@ static void on_reshape(int width, int height){
 	glViewport(0, 0, width, height);
     	
 	//Cuvaju se vrednosti sirine i visine prozora
-	//jer su potrebne u f-jama ispisa
+	//(potrebne su u f-jama ispisa)
 	screen_width = width;
 	screen_height = height;
 
@@ -301,7 +299,7 @@ static void on_key_press(unsigned char key, int x, int y){
 void arrow_keys(int arrow, int x, int y){  
     
     switch (arrow){
-    	case GLUT_KEY_DOWN:      // Pritisnuta strelica nagore (^)
+    	case GLUT_KEY_DOWN:      // Pritisnuta strelica nadole 
     		glutTimerFunc(20, on_timer1, 0);
 			glutPostRedisplay();
         	break;
@@ -316,6 +314,7 @@ static void on_timer(int id) {
 
         
 	//Parametar1 za tacku pogleda
+    //Parametar2 za tajmer u igrici 
     	if(animation_ongoing){
 			parametar1 += 0.04;
 			
@@ -347,9 +346,9 @@ static void on_timer1(int id){
 	azuriraj_tela();
 
 	for(int i=0; i<MAX_TELA; i++) {
+		/*Ukoliko se telo nalazi ispod ekrana a pri tom
+		je telo Platonovo i nije pogodjeno => telo je proslo, a igrac gubi zivot*/
 		if(sva_tela[i].y < -6  && sva_tela[i].is_platonic && !sva_tela[i].pogodjeno && !sva_tela[i].proslo){
-			//Ukoliko se telo nalazi ispod ekrana a pri tom
-			//je telo Platonovo i nije pogodjeno => telo je proslo, a igrac gubi zivot
 			sva_tela[i].proslo = true;
 			zivoti --;
 		}
@@ -357,11 +356,11 @@ static void on_timer1(int id){
 		if(zivoti == 0){
 			//Ako je broj zivota 0, zaustavlja se animacija
 			animation_ongoing=0;
-			
 			break;
 		}
 	}
 
+	//Ako je broj pogodjenih tela 25 => igrac je povbedio
 	if(broj_pogodjenih == 25){
 		animation_ongoing = 0;
 		pobeda = true;

@@ -344,7 +344,7 @@ void nacrtaj_kosmos(){
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 	glMaterialfv(GL_FRONT, GL_EMISSION, material_emission);
 
-    //Postavljanje teksture
+	//Poligon na koji ce biti dodata tekstura
 	glPushMatrix();
 		glBegin(GL_QUADS);
 		    glNormal3f(0, 0, 1);
@@ -387,7 +387,7 @@ void ispisi_tekst(char * tekst, int x, int y, int sirina_ekrana, int duzina_ekra
 	       }
         
 	       glMatrixMode(GL_MODELVIEW);
-	   glPopMatrix();
+	    glPopMatrix();
     
 	   glMatrixMode(GL_PROJECTION);
 	   glPopMatrix();
